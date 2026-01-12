@@ -9,6 +9,7 @@
 Layered Architecture (3-tier)
 
 ## 📂 Project Structure
+```
 src/
 ├── presentation/
 │ ├── routes/ # จัดการเส้นทาง API
@@ -20,6 +21,7 @@ src/
 └── data/
 ├── repositories/ # การเข้าถึงฐานข้อมูล
 └── database/ # การเชื่อมต่อ SQLite
+```
 
 ## 🎯 Refactoring Summary
 
@@ -59,7 +61,7 @@ npm start
 # 4. Test API
 # Open browser: http://localhost:3000
 ```
-
+```
 ## 📝 API Endpoints
 Method	Endpoint	Description
 GET	/api/books	ดึงข้อมูลหนังสือทั้งหมด
@@ -69,3 +71,4 @@ PUT	/api/books/:id	แก้ไขข้อมูลหนังสือ
 PATCH	/api/books/:id/borrow	ยืมหนังสือ
 PATCH	/api/books/:id/return	คืนหนังสือ
 DELETE	/api/books/:id	ลบหนังสือ
+```
