@@ -9,18 +9,40 @@
 Layered Architecture (3-tier)
 
 ## 📂 Project Structure
-[อธิบายโครงสร้างโฟลเดอร์]
+src/
+├── presentation/
+│ ├── routes/ # จัดการเส้นทาง API
+│ ├── controllers/ # จัดการ HTTP Request/Response
+│ └── middlewares/ # Error Handling และ Middleware
+├── business/
+│ ├── services/ # Business Logic ของระบบ
+│ └── validators/ # ตรวจสอบความถูกต้องของข้อมูล
+└── data/
+├── repositories/ # การเข้าถึงฐานข้อมูล
+└── database/ # การเชื่อมต่อ SQLite
 
 ## 🎯 Refactoring Summary
 
 ### ปัญหาของ Monolithic (เดิม):
-- [ระบุปัญหา 3-5 ข้อ]
+-โค้ดทั้งหมดอยู่ในไฟล์เดียว ทำให้ไฟล์มีขนาดใหญ่และอ่านยาก
+-Business Logic ปะปนกับ HTTP และ Database Logic
+-การแก้ไขโค้ดส่วนหนึ่งอาจกระทบทั้งระบบ
+-ยากต่อการบำรุงรักษาและขยายระบบ
+-การทดสอบแต่ละส่วนทำได้ยาก
 
 ### วิธีแก้ไขด้วย Layered Architecture:
-- [อธิบายวิธีแก้แต่ละปัญหา]
+-แยกความรับผิดชอบของโค้ดออกเป็น Layer 
+-Controller ทำหน้าที่รับ–ส่งข้อมูลผ่าน HTTP เท่านั้น
+-Service จัดการ Business Logic และกฎของระบบ
+-Repository จัดการการเข้าถึงฐานข้อมูล
+-ลดการพึ่งพาซึ่งกันและกันระหว่างส่วนต่าง ๆ
 
 ### ประโยชน์ที่ได้รับ:
-- [ระบุประโยชน์ 3-5 ข้อ]
+-โค้ดอ่านง่าย เป็นระเบียบ และดูเป็นมืออาชีพ
+-แก้ไขหรือเพิ่มฟีเจอร์ได้ง่าย
+-ลดผลกระทบเมื่อมีการเปลี่ยนแปลงโค้ด
+-รองรับการขยายระบบในอนาคต
+-สอดคล้องกับหลักการออกแบบซอฟต์แวร์ที่ดี
 
 ## 🚀 How to Run
 
@@ -39,4 +61,11 @@ npm start
 \`\`\`
 
 ## 📝 API Endpoints
-[ระบุ API endpoints ทั้งหมด]
+Method	Endpoint	Description
+GET	/api/books	ดึงข้อมูลหนังสือทั้งหมด
+GET	/api/books/:id	ดึงข้อมูลหนังสือตาม ID
+POST	/api/books	เพิ่มหนังสือใหม่
+PUT	/api/books/:id	แก้ไขข้อมูลหนังสือ
+PATCH	/api/books/:id/borrow	ยืมหนังสือ
+PATCH	/api/books/:id/return	คืนหนังสือ
+DELETE	/api/books/:id	ลบหนังสือ
