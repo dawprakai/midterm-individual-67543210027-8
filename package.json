@@ -1,0 +1,17 @@
+{
+  "name": "midterm-individual-67543210027-8",
+  "version": "1.0.0",
+  "description": "## 📋 Project Information - **Student Name:** [นางสาวดาวประกาย เสาร์สิงห์] - **Student ID:** [67543210027-8] - **Course:** ENGSE207 Software Architecture",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "sqlite3": "^5.1.7"
+  }
+}
