@@ -1,0 +1,241 @@
+# 📚 Library Management System – Architecture Design
+
+## 📋 Overview
+
+เอกสารนี้อธิบายสถาปัตยกรรมของ **Library Management System** ที่ออกแบบตามแนวคิด **Layered Architecture (3-Tier)**
+เพื่อใช้ประกอบการเรียนและการสอบรายวิชา **ENGSE207 Software Architecture**
+
+**Student:** นางสาวดาวประกาย เสาร์สิงห์
+**Student ID:** 67543210027-8
+**Architecture Style:** Layered Architecture (3-Tier)
+
+---
+
+## 🎯 Objectives
+
+1. แสดงภาพรวมของระบบและผู้ใช้งาน (System Context)
+2. อธิบายโครงสร้างภายในระบบแบบ Layered Architecture
+3. ระบุหน้าที่ความรับผิดชอบของแต่ละ Layer อย่างชัดเจน
+4. อธิบายการไหลของข้อมูล (Request → Response)
+
+---
+
+## 📊 C1: System Context Diagram
+
+### Diagram
+
+```
+┌─────────────────────────────────────────────────────┐
+│                                                     │
+│                   Library User                      │
+│        (บรรณารักษ์ / เจ้าหน้าที่ / ผู้ใช้ทั่วไป)         │
+│                                                     │
+└────────────┬────────────────────────────────────────┘
+             │ HTTP/JSON (CRUD Operations)
+             ▼
+┌─────────────────────────────────────────────────────┐
+│            Library Management System                │
+│                                                     │
+│  • จัดการข้อมูลหนังสือ (CRUD)                      │
+│  • ยืม / คืน หนังสือ                               │
+│  • ตรวจสอบสถานะหนังสือ                            │
+│  • แสดงสถิติหนังสือ                               │
+│                                                     │
+└────────────┬────────────────────────────────────────┘
+             │ SQL Queries
+             ▼
+┌─────────────────────────────────────────────────────┐
+│                SQLite Database                      │
+│                 (library.db)                       │
+└─────────────────────────────────────────────────────┘
+```
+
+### Description
+
+* **Actors:** Library User (บรรณารักษ์, เจ้าหน้าที่, ผู้ใช้)
+* **System:** Library Management System – ระบบจัดการข้อมูลหนังสือและการยืม–คืน
+* **External System:** SQLite Database สำหรับจัดเก็บข้อมูลหนังสือ
+
+---
+
+## 🏗️ C2: Container Diagram – Layered Architecture
+
+### Diagram
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                       CLIENT (Browser)                       │
+└────────────┬─────────────────────────────────────────────────┘
+             │ HTTP/JSON
+             ▼
+╔══════════════════════════════════════════════════════════════╗
+║               LIBRARY MANAGEMENT SYSTEM                      ║
+║                (Express.js Application)                      ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║  ┌────────────────────────────────────────────────────────┐  ║
+║  │        📋 PRESENTATION LAYER                            │  ║
+║  │                                                        │  ║
+║  │  • Routes        (bookRoutes.js)                       │  ║
+║  │  • Controllers   (bookController.js)                   │  ║
+║  │  • Middlewares   (errorHandler.js)                     │  ║
+║  └──────────────────────┬─────────────────────────────────┘  ║
+║                         │                                    ║
+║                         ▼                                    ║
+║  ┌────────────────────────────────────────────────────────┐  ║
+║  │        🧠 BUSINESS LOGIC LAYER                          │  ║
+║  │                                                        │  ║
+║  │  • Services      (bookService.js)                      │  ║
+║  │  • Validators    (bookValidator.js)                    │  ║
+║  │                                                        │  ║
+║  │  Business Rules:                                      │  ║
+║  │    ✓ title, author, isbn required                     │  ║
+║  │    ✓ ISBN format validation                           │  ║
+║  │    ✓ book status: available / borrowed                │  ║
+║  └──────────────────────┬─────────────────────────────────┘  ║
+║                         │                                    ║
+║                         ▼                                    ║
+║  ┌────────────────────────────────────────────────────────┐  ║
+║  │        💾 DATA ACCESS LAYER                             │  ║
+║  │                                                        │  ║
+║  │  • Repositories  (bookRepository.js)                  │  ║
+║  │  • Database      (connection.js)                      │  ║
+║  │                                                        │  ║
+║  │  Methods:                                             │  ║
+║  │    • findAll(status)                                  │  ║
+║  │    • findById(id)                                     │  ║
+║  │    • create(bookData)                                 │  ║
+║  │    • update(id, bookData)                             │  ║
+║  │    • updateStatus(id, status)                         │  ║
+║  │    • delete(id)                                       │  ║
+║  └──────────────────────┬─────────────────────────────────┘  ║
+╚═════════════════════════╪════════════════════════════════════╝
+                          │ SQL
+                          ▼
+              ┌──────────────────────────────┐
+              │        SQLite Database       │
+              │         (library.db)        │
+              │                              │
+              │  Table: books                │
+              │  - id                        │
+              │  - title                     │
+              │  - author                    │
+              │  - isbn                      │
+              │  - status                    │
+              │  - created_at                │
+              └──────────────────────────────┘
+```
+
+---
+
+## 📝 Layer Responsibilities
+
+### 1️⃣ Presentation Layer
+
+**หน้าที่:**
+
+* รับ HTTP Request จาก Client
+* Parse parameters และ request body
+* เรียกใช้ Business Logic Layer
+* ส่ง HTTP Response กลับในรูปแบบ JSON
+* จัดการ Error ผ่าน Middleware
+
+**ไฟล์:**
+
+* `bookRoutes.js`
+* `bookController.js`
+* `errorHandler.js`
+
+**ห้ามทำ:**
+
+* ❌ เขียน SQL Query
+* ❌ เขียน Business Logic
+* ❌ เข้าถึงฐานข้อมูลโดยตรง
+
+---
+
+### 2️⃣ Business Logic Layer
+
+**หน้าที่:**
+
+* ตรวจสอบความถูกต้องของข้อมูล (Validation)
+* บังคับใช้กฎของระบบ (Business Rules)
+* จัดการกระบวนการยืม–คืนหนังสือ
+* เรียกใช้ Data Access Layer
+
+**ไฟล์:**
+
+* `bookService.js`
+* `bookValidator.js`
+
+**Business Rules ตัวอย่าง:**
+
+* ต้องมี title, author, isbn
+* ISBN ต้องอยู่ในรูปแบบที่ถูกต้อง
+* หนังสือที่ถูกยืมแล้วไม่สามารถยืมซ้ำได้
+
+---
+
+### 3️⃣ Data Access Layer
+
+**หน้าที่:**
+
+* เชื่อมต่อฐานข้อมูล SQLite
+* ทำ CRUD Operations
+* แปลงผลลัพธ์จาก SQL เป็น JavaScript Objects
+
+**ไฟล์:**
+
+* `bookRepository.js`
+* `connection.js`
+
+**Methods:**
+
+* findAll(status)
+* findById(id)
+* create(bookData)
+* update(id, bookData)
+* updateStatus(id, status)
+* delete(id)
+
+---
+
+## 🔄 Data Flow Example: Borrow Book
+
+```
+Client
+  → Controller (borrowBook)
+  → Service (borrowBook)
+  → Validator (check status)
+  → Repository (updateStatus)
+  → Database
+  ← Repository
+  ← Service
+  ← Controller
+  ← Client (JSON Response)
+```
+
+**Steps:**
+
+1. Client ส่ง PATCH `/api/books/:id/borrow`
+2. Controller รับ request และเรียก Service
+3. Service ตรวจสอบสถานะหนังสือ
+4. Repository อัปเดตสถานะในฐานข้อมูล
+5. ส่งผลลัพธ์กลับเป็น JSON
+
+---
+
+## ✅ Architecture Benefits
+
+* Separation of Concerns ชัดเจน
+* โค้ดอ่านง่ายและบำรุงรักษาได้ง่าย
+* ลดผลกระทบเมื่อมีการแก้ไขระบบ
+* รองรับการขยายระบบในอนาคต
+
+---
+
+## 📌 Summary
+
+Library Management System ถูกออกแบบตามแนวคิด Layered Architecture
+เพื่อแก้ปัญหา Monolithic Architecture และเพิ่มคุณภาพของซอฟต์แวร์
+ทั้งในด้านโครงสร้าง ความยืดหยุ่น และการบำรุงรักษา
